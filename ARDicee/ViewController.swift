@@ -20,38 +20,17 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Set the view's delegate
         sceneView.delegate = self
         
-        //Create a sphere
-        let sphere = SCNSphere(radius: 0.2)
+        setupDice()
         
-        let material = SCNMaterial()
-        
-        //Material downloaded from solarsystemscope.com
-        material.diffuse.contents = UIImage(named: "art.scnassets/2k_mercury.jpg")
-        
-        sphere.materials = [material]
-        
-        let node = SCNNode()
-        
-        node.position = SCNVector3(0, 0.1, -0.5)
-        
-        node.geometry = sphere
-        
-        sceneView.scene.rootNode.addChildNode(node)
-        
-        //Add lighting for true 3d effects/shodows
-        sceneView.autoenablesDefaultLighting = true
+        //setupSphere()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        // Create a session configuration
-        let configuration = ARWorldTrackingConfiguration()
-        
-        // Run the view's session
-        sceneView.session.run(configuration)
-        
+       setupTracking()
     }
+    
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -60,7 +39,65 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         sceneView.session.pause()
     }
 
-    // MARK: - ARSCNViewDelegate
     
+    // MARK: - Custom Methods
+    
+    func setupTracking() {
+        // Create a session configuration
+        let configuration = ARWorldTrackingConfiguration()
+        
+        //Dectect horizontal plane = flat surface ex. floor or table
+        configuration.planeDetection = .horizontal
+        
+        // Run the view's session
+        sceneView.session.run(configuration)
+    }
+    
+    func setupDice() {
+
+        //Create a new scene
+        let diceScene = SCNScene(named: "art.scnassets/diceCollada.scn")!
+        //Set the scene to the view, recursively = to allow access down the direcotry to finde idnetifier Dice
+        if let diceNode = diceScene.rootNode.childNode(withName: "Dice", recursively: true) {
+            
+            diceNode.position = SCNVector3(0, 0, -0.01)
+            
+            sceneView.scene.rootNode.addChildNode(diceNode)
+        }
+        
+        //Add lighting for true 3d effects/shodows
+        sceneView.autoenablesDefaultLighting = true
+    }
+    
+    
+    func setupSphere() {
+
+         let sphere = SCNSphere(radius: 0.2)
+
+         let material = SCNMaterial()
+
+         material.diffuse.contents = UIImage(named: "art.scnassets/2k_mercury.jpg")
+
+         sphere.materials = [material]
+
+         let node = SCNNode()
+
+         node.position = SCNVector3(0, 0.1, -0.5)
+
+         node.geometry = sphere
+
+         sceneView.scene.rootNode.addChildNode(node)
+         
+         //Add lighting for true 3d effects/shodows
+         sceneView.autoenablesDefaultLighting = true
+    }
+    
+    
+    //MARK: - ARSCNViewDelegate
+    
+    //Tell delegate when a horizontal surface has been detected
+    func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+        
+    }
 
 }
